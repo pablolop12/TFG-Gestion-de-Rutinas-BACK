@@ -1,0 +1,21 @@
+2024-05-24T00:00:27.621+02:00  INFO 5656 --- [tfg-gimnasio] [http-nio-8080-exec-6] c.p.t.controller.RutinaController        : Actualizando rutina con ID: 38
+2024-05-24T00:00:27.662+02:00  INFO 5656 --- [tfg-gimnasio] [http-nio-8080-exec-6] c.p.tfggimnasio.service.RutinaService    : Actualizando rutina con ID: 38
+2024-05-24T00:00:27.675+02:00  INFO 5656 --- [tfg-gimnasio] [http-nio-8080-exec-6] c.p.t.controller.RutinaController        : Rutina actualizada con éxito: RutinaDTO(id=38, nombreRutina=RUTINA FINAL, descripcion=RUTINA FINAL, isActive=true, startDate=2024-05-21, usuarioId=1, rutinaEjercicios=[RutinaEjercicioDTO(id=164, ejercicioId=1, dia=Viernes, nombreDia=Final, repeticiones=22, series=22, peso=22.0), RutinaEjercicioDTO(id=163, ejercicioId=1, dia=Viernes, nombreDia=Final, repeticiones=111, series=111, peso=111.0)])
+2024-05-24T12:24:38.983+02:00  INFO 18568 --- [tfg-gimnasio] [restartedMain] c.p.tfggimnasio.TfgGimnasioApplication   : Starting TfgGimnasioApplication using Java 21.0.2 with PID 18568 (C:\Users\a924675\OneDrive - Eviden\Documentos\tfg-gimnasio\target\classes started by a924675 in C:\Users\a924675\OneDrive - Eviden\Documentos\tfg-gimnasio)
+2024-05-24T12:24:38.985+02:00 DEBUG 18568 --- [tfg-gimnasio] [restartedMain] c.p.tfggimnasio.TfgGimnasioApplication   : Running with Spring Boot v3.2.5, Spring v6.1.6
+2024-05-24T12:24:38.986+02:00  INFO 18568 --- [tfg-gimnasio] [restartedMain] c.p.tfggimnasio.TfgGimnasioApplication   : No active profile set, falling back to 1 default profile: "default"
+2024-05-24T12:24:40.193+02:00  INFO 18568 --- [tfg-gimnasio] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-05-24T12:24:40.193+02:00  INFO 18568 --- [tfg-gimnasio] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2024-05-24T12:24:40.252+02:00  INFO 18568 --- [tfg-gimnasio] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-05-24T12:24:40.296+02:00 DEBUG 18568 --- [tfg-gimnasio] [restartedMain] c.p.tfggimnasio.security.RequestFilter   : Filter 'requestFilter' configured for use
+2024-05-24T12:24:40.390+02:00  INFO 18568 --- [tfg-gimnasio] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-05-24T12:24:40.455+02:00  INFO 18568 --- [tfg-gimnasio] [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
+2024-05-24T12:24:40.502+02:00  INFO 18568 --- [tfg-gimnasio] [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-05-24T12:24:40.734+02:00  INFO 18568 --- [tfg-gimnasio] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-05-24T12:24:40.892+02:00  INFO 18568 --- [tfg-gimnasio] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6b6029c4
+2024-05-24T12:24:40.894+02:00  INFO 18568 --- [tfg-gimnasio] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-05-24T12:24:40.936+02:00  WARN 18568 --- [tfg-gimnasio] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-05-24T12:24:41.995+02:00  INFO 18568 --- [tfg-gimnasio] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-05-24T12:24:43.369+02:00  INFO 18568 --- [tfg-gimnasio] [restartedMain] c.p.tfggimnasio.TfgGimnasioApplication   : Started TfgGimnasioApplication in 4.651 seconds (process running for 5.147)
+2024-05-24T12:26:03.437+02:00  INFO 18568 --- [tfg-gimnasio] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-05-24T12:26:03.590+02:00 ERROR 18568 --- [tfg-gimnasio] [http-nio-8080-exec-3] c.p.tfggimnasio.security.RequestFilter   : Token expirado
