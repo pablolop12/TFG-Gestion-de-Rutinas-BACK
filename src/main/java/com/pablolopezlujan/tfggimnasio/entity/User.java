@@ -8,17 +8,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-/**
- * Almacena información sobre los usuarios de la aplicación, incluyendo sus
- * datos personales y credenciales de acceso. Cada usuario puede tener múltiples
- * rutinas y dietas asociadas.
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -46,14 +42,18 @@ public class User implements UserDetails {
     @Column(name = "roles")
     private Role role;
 
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "reset_password_expires")
+    private Date resetPasswordExpires;
+
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rutina> rutinas;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Dieta> dietas;
-    
-    
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

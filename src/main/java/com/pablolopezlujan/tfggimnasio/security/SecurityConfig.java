@@ -60,9 +60,9 @@ public class SecurityConfig {
             .exceptionHandling((exceptionHandling) -> exceptionHandling.authenticationEntryPoint(authEntryPoint))
             .authorizeHttpRequests((requests) -> {
                 requests
-                    // Zona pública
+                    .requestMatchers("/api/v1/auth/forgot-password").permitAll()
+                    .requestMatchers("/api/v1/auth/reset-password").permitAll()
                     .requestMatchers("/api/v1/auth/**").permitAll()
-                    // Zona privada
                     .anyRequest().authenticated();
             })
             .formLogin((form) -> form.permitAll())
@@ -72,4 +72,5 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 }

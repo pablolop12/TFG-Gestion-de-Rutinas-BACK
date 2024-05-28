@@ -14,6 +14,8 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,13 +23,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    // Logs
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     @Autowired
@@ -45,6 +45,9 @@ public class AuthService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private JavaMailSender mailSender;
+
     public TokenDto login(LoginCredential request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -53,11 +56,9 @@ public class AuthService {
         logger.debug("BUSCANDO USUARIO: " + request.getEmail());
         UserDetails user = userRepository.findByEmail(request.getEmail()).orElseThrow();
 
-        // UserData
         User userData = userRepository.findByEmail(request.getEmail()).orElseThrow();
         String roles = userData.getRole().name();
 
-        // Token Payload
         Map<String, Object> payload = new HashMap<>();
         payload.put("id", userData.getId());
         payload.put("name", userData.getName());
@@ -84,7 +85,6 @@ public class AuthService {
         user.setRole(Role.USER);
         userRepository.save(user);
 
-        // UserData
         User userData = userRepository.findByEmail(request.getEmail()).orElseThrow();
         String roles = userData.getRole().name();
 
@@ -103,7 +103,6 @@ public class AuthService {
         user.setRole(Role.USER);
         userRepository.save(user);
 
-        // UserData
         User userData = userRepository.findByEmail(request.getEmail()).orElseThrow();
         String roles = userData.getRole().name();
 
@@ -122,7 +121,6 @@ public class AuthService {
         user.setRole(Role.ADMIN);
         userRepository.save(user);
 
-        // UserData
         User userData = userRepository.findByEmail(request.getEmail()).orElseThrow();
         String roles = userData.getRole().name();
 
@@ -141,7 +139,6 @@ public class AuthService {
         user.setRole(Role.ADMIN);
         userRepository.save(user);
 
-        // UserData
         User userData = userRepository.findByEmail(request.getEmail()).orElseThrow();
         String roles = userData.getRole().name();
 
@@ -152,5 +149,51 @@ public class AuthService {
                 .email(userData.getEmail())
                 .roles(roles)
                 .build();
+    }
+
+ // Password reset methods
+    public void sendPasswordResetEmail(String email) {
+        logger.debug("Iniciando el proceso de recuperación de contraseña para el email: {}", email);
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (!userOptional.isPresent()) {
+            logger.error("No se encontró un usuario con el email: {}", email);
+            throw new RuntimeException("No user found with email " + email);
+        }
+
+        User user = userOptional.get();
+        String token = UUID.randomUUID().toString();
+        user.setResetPasswordToken(token);
+        user.setResetPasswordExpires(new Date(System.currentTimeMillis() + 3600000)); // 1 hour expiry
+        userRepository.save(user);
+
+        logger.debug("Usuario encontrado: {}. Token de restablecimiento de contraseña generado: {}", user.getEmail(), token);
+
+        SimpleMailMessage emailMessage = new SimpleMailMessage();
+        emailMessage.setTo(user.getEmail());
+        emailMessage.setSubject("Password Reset Request");
+        emailMessage.setText("To reset your password, click the link below:\n" +
+                "http://localhost:4200/reset-password?token=" + token);
+
+        logger.debug("Enviando correo a: {}", user.getEmail());
+        mailSender.send(emailMessage);
+        
+        logger.debug("correo enviado a: {}", user.getEmail());
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        Optional<User> userOptional = userRepository.findByResetPasswordToken(token);
+        if (!userOptional.isPresent()) {
+            throw new RuntimeException("Invalid token");
+        }
+
+        User user = userOptional.get();
+        if (user.getResetPasswordExpires().before(new Date())) {
+            throw new RuntimeException("Token expired");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetPasswordToken(null);
+        user.setResetPasswordExpires(null);
+        userRepository.save(user);
     }
 }

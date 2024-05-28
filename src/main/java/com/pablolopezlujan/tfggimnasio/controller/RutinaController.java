@@ -1,6 +1,6 @@
 package com.pablolopezlujan.tfggimnasio.controller;
 
-import com.pablolopezlujan.tfggimnasio.dto.Ejercicio.EjercicioDTO;
+
 import com.pablolopezlujan.tfggimnasio.dto.Rutina.RutinaDTO;
 import com.pablolopezlujan.tfggimnasio.security.dto.TokenPayloadDTO;
 import com.pablolopezlujan.tfggimnasio.security.service.AuthService;

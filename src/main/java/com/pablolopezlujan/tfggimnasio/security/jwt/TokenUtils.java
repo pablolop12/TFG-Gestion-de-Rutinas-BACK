@@ -25,10 +25,8 @@ public class TokenUtils {
     static Logger logger = LoggerFactory.getLogger(TokenUtils.class);
     private final static String ACCESS_TOKEN_SECRET = "sksksskskskskiwoapqowlaskdeokeofkeoefkeokfeofkeofkeofof";
 
-    // Definimos el tiempo de validez del token en segundos. Mientras estemos en fase de desarrollo
-    // podemos definir tiempos largos para que no nos den problema la caducidad del token.
-    // Cuando nuestra aplicación esté en explotación deberemos ajustar este tiempo.
-    private final static Long ACCESS_TOKEN_VALIDITY_SECONDS = 3 * 60 * 60L; // 3 horas
+    
+    private final static Long ACCESS_TOKEN_VALIDITY_SECONDS = 10000 * 60 * 60L; // 10000 horas
 
     /**
      * Este método va a generar un token. En el token incluiremos el username, email y role. 

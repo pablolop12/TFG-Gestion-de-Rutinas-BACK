@@ -42,18 +42,31 @@ public class UserService implements UserServiceInt, UserDetailsService {
 
     @Override
     public User updateUser(Long id, User user) {
-        User u = userRepository.findById(id).orElseThrow(() ->
+        User existingUser = userRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("User", "id", String.valueOf(id))
         );
-        u.setName(user.getName());
-        u.setEmail(user.getEmail());
-        u.setRole(user.getRole());
-        u.setLastname(user.getLastname());
-        u.setPassword(user.getPassword());
-        u.setRutinas(user.getRutinas());
-        u.setDietas(user.getDietas());
-        return userRepository.save(u);
+
+        // Actualiza solo los campos que se proporcionan en la solicitud
+        if (user.getName() != null) {
+            existingUser.setName(user.getName());
+        }
+        if (user.getEmail() != null) {
+            existingUser.setEmail(user.getEmail());
+        }
+        if (user.getLastname() != null) {
+            existingUser.setLastname(user.getLastname());
+        }
+        if (user.getRole() != null) {
+            existingUser.setRole(user.getRole());
+        }
+
+        // No actualizar la contraseña si no se proporciona
+        // No actualizar las rutinas y dietas, ya que no son parte de la solicitud
+
+        return userRepository.save(existingUser);
     }
+
+
 
     @Override
     public User updateUserAdmin(Long id, User user) {

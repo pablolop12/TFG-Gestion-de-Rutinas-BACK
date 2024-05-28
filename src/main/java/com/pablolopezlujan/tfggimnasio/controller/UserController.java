@@ -86,26 +86,31 @@ public class UserController {
         UserDTO userToPut = userConverter.UserToDTO(userService.findById(id));
         UserDTO admin1 = userConverter.UserToDTO(userService.findById(1L));
 
-        if (
-                (Role.valueOf(userToPut.getRole()) != Role.ADMIN && (user.getId().equals(id) || Role.valueOf(user.getRole()) == Role.ADMIN))
-                        || (Role.valueOf(userToPut.getRole()) == Role.ADMIN && (user.getId().equals(id) || user.getId().equals(1L)))
-        ) {
-            User userRequest = userConverter.DTOtoUser(userDto);
-            User updatedUser = userService.updateUser(id, userRequest);
-            UserDTO updatedUserDto = userConverter.UserToDTO(updatedUser);
-            return ResponseEntity.ok(updatedUserDto);
-        } else if (Role.valueOf(userToPut.getRole()) == Role.ADMIN && (!user.getId().equals(id) || !user.getId().equals(1L))) {
-            String msg = " Please contact ";
-            if (!userToPut.getEmail().equals(admin1.getEmail())) {
-                msg += userToPut.getEmail();
-                msg += " or ";
+        try {
+            if ((Role.valueOf(userToPut.getRole()) != Role.ADMIN && (user.getId().equals(id) || Role.valueOf(user.getRole()) == Role.ADMIN))
+                    || (Role.valueOf(userToPut.getRole()) == Role.ADMIN && (user.getId().equals(id) || user.getId().equals(1L)))) {
+                User userRequest = userConverter.DTOtoUser(userDto);
+                User updatedUser = userService.updateUser(id, userRequest);
+                UserDTO updatedUserDto = userConverter.UserToDTO(updatedUser);
+                return ResponseEntity.ok(updatedUserDto);
+            } else if (Role.valueOf(userToPut.getRole()) == Role.ADMIN && (!user.getId().equals(id) || !user.getId().equals(1L))) {
+                String msg = " Please contact ";
+                if (!userToPut.getEmail().equals(admin1.getEmail())) {
+                    msg += userToPut.getEmail();
+                    msg += " or ";
+                }
+                msg += admin1.getEmail();
+                throw new ExceptionCredentialNotValid("You do not have permissions to access to other ADMIN." + msg);
+            } else {
+                throw new ExceptionCredentialNotValid("You do not have permissions to access.");
             }
-            msg += admin1.getEmail();
-            throw new ExceptionCredentialNotValid("You do not have permissions to access to other ADMIN." + msg);
-        } else {
-            throw new ExceptionCredentialNotValid("You do not have permissions to access.");
+        } catch (Exception e) {
+            logger.error("Error updating user: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteUser(
