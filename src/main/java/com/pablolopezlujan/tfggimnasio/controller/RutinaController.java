@@ -76,7 +76,4 @@ public class RutinaController {
         RutinaDTO rutinaDTO = rutinaService.getActiveRutinaByUserId(payload.getId());
         return ResponseEntity.status(HttpStatus.OK).body(rutinaDTO);
     }
-    
-    
-
 }

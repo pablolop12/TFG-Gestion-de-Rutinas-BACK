@@ -32,6 +32,23 @@ public class DietaComida {
     @Column(name = "dia", nullable = false)
     private String dia; // "Lunes", "Martes", ..., "Domingo"
 
+    @Column(name = "nombre_dia", length = 100)
+    private String nombreDia; // "Día de proteínas", "Día de vegetales", etc.
+
     @Column(name = "tipo_comida", nullable = false)
     private String tipoComida; // "Desayuno", "Almuerzo", "Comida", "Merienda", "Cena"
+
+    @Column(name = "cantidad", nullable = false)
+    private Integer cantidad; // Agregado para mantener paralelismo con RutinaEjercicio
+    
+    @Override
+    public String toString() {
+        return "DietaComida{" +
+                "id=" + id +
+                ", dia='" + dia + '\'' +
+                ", nombreDia='" + nombreDia + '\'' +
+                ", tipoComida='" + tipoComida + '\'' +
+                ", cantidad=" + cantidad + // Agregado para mantener paralelismo con RutinaEjercicio
+                '}';
+    }
 }

@@ -24,9 +24,19 @@ public class Comida {
     @Column(name = "tipo_comida", nullable = false)
     private String tipoComida;
 
+    @Column(name = "nombre", nullable = false, columnDefinition = "TEXT")
+    private String nombre;
+    
     @Column(name = "descripcion", nullable = false, columnDefinition = "TEXT")
     private String descripcion;
 
     @Column(name = "calorias")
     private Integer calorias;
+
+    @Column(name = "imagen_url")
+    private String imagenUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private User usuario;
 }

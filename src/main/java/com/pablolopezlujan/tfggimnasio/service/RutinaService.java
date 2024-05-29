@@ -133,6 +133,7 @@ public class RutinaService {
                 if (rutinaEjercicioDTO.getId() != null && existingEjerciciosMap.containsKey(rutinaEjercicioDTO.getId())) {
                     // Actualizar el ejercicio existente
                     rutinaEjercicio = existingEjerciciosMap.get(rutinaEjercicioDTO.getId());
+                    rutinaEjercicio.setEjercicio(ejercicio); // Asegurarse de que el ejercicio se actualice
                     rutinaEjercicio.setDia(rutinaEjercicioDTO.getDia());
                     rutinaEjercicio.setNombreDia(rutinaEjercicioDTO.getNombreDia());
                     rutinaEjercicio.setRepeticiones(rutinaEjercicioDTO.getRepeticiones());
@@ -173,12 +174,6 @@ public class RutinaService {
         }
     }
 
-
-
-
-
-
-
     public RutinaDTO getRutinaById(Long id) {
         Rutina rutina = rutinaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Rutina no encontrada"));
@@ -191,4 +186,3 @@ public class RutinaService {
         return new RutinaDTO(rutina);
     }
 }
-
