@@ -1,6 +1,7 @@
 package com.pablolopezlujan.tfggimnasio.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,9 @@ public class PasswordResetService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     @Transactional
     public void sendPasswordResetEmail(String email) {
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -36,9 +40,9 @@ public class PasswordResetService {
 
         SimpleMailMessage emailMessage = new SimpleMailMessage();
         emailMessage.setTo(user.getEmail());
-        emailMessage.setSubject("Password Reset Request");
-        emailMessage.setText("To reset your password, click the link below:\n" +
-                "http://localhost:4200/reset-password?token=" + user.getResetPasswordToken());
+        emailMessage.setSubject("Password Reset solicitud");
+        emailMessage.setText("Para resetear tu contraseña haz click en este enlace:\n" +
+                frontendUrl + "/reset-password?token=" + user.getResetPasswordToken());
 
         mailSender.send(emailMessage);
     }

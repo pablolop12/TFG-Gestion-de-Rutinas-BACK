@@ -7,6 +7,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -62,6 +63,12 @@ public class AuthService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Value("${app.backend.url}")
+    private String backendUrl;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     public TokenDto login(LoginCredential request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -110,7 +117,7 @@ public class AuthService {
 
         confirmationTokenRepository.save(confirmationToken);
 
-        String link = "http://localhost:8080/api/v1/auth/confirm?token=" + token;
+        String link = backendUrl + "/api/v1/auth/confirm?token=" + token;
         emailSenderService.send(user.getEmail(), buildEmail(user.getName(), link));
 
         User userData = userRepository.findByEmail(request.getEmail()).orElseThrow();
@@ -121,7 +128,7 @@ public class AuthService {
                 .name(userData.getName())
                 .lastname(userData.getLastname())
                 .email(userData.getEmail())
-                .movil(userData.getMovil()) // Asegúrate de incluir movil
+                .movil(userData.getMovil())
                 .roles(roles)
                 .build();
     }
@@ -140,10 +147,11 @@ public class AuthService {
                 .name(userData.getName())
                 .lastname(userData.getLastname())
                 .email(userData.getEmail())
-                .movil(userData.getMovil()) // Asegúrate de incluir movil
+                .movil(userData.getMovil())
                 .roles(roles)
                 .build();
     }
+
     public String confirmToken(String token) {
         ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token)
                 .orElseThrow(() -> new IllegalStateException("Token no encontrado"));
@@ -164,9 +172,8 @@ public class AuthService {
         user.setEnabled(true);
         userRepository.save(user);
 
-        return "Correo electrónico confirmado, puedes inicar sesión.";
+        return "Correo electrónico confirmado, puedes iniciar sesión.";
     }
-
 
     private String buildEmail(String name, String link) {
         return "Hola " + name + ",\n\nHaz click en este enlace para activar tu cuenta:\n" + link + "\n\nGracias.";
@@ -193,12 +200,12 @@ public class AuthService {
         emailMessage.setTo(user.getEmail());
         emailMessage.setSubject("Reseteo de contraseña");
         emailMessage.setText("Para resetear su contraseña haga click en el siguiente enlace:\n" +
-                "http://localhost:4200/reset-password?token=" + token);
+                frontendUrl + "/reset-password?token=" + token);
 
         logger.debug("Enviando correo a: {}", user.getEmail());
         mailSender.send(emailMessage);
-        
-        logger.debug("correo enviado a: {}", user.getEmail());
+
+        logger.debug("Correo enviado a: {}", user.getEmail());
     }
 
     public void resetPassword(String token, String newPassword) {

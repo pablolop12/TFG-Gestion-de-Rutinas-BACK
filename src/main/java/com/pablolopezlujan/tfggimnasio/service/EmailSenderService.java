@@ -20,11 +20,11 @@ public class EmailSenderService {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
             helper.setText(email, true);
             helper.setTo(to);
-            helper.setSubject("Confirm your email");
+            helper.setSubject("Confirma tu correo");
             helper.setFrom("noreply.fitplanner@gmail.com");
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            throw new IllegalStateException("Failed to send email");
+            throw new IllegalStateException("Fallo al enviar");
         }
     }
 }

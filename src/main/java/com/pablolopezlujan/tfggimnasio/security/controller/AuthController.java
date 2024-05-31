@@ -1,6 +1,7 @@
 package com.pablolopezlujan.tfggimnasio.security.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +18,15 @@ import com.pablolopezlujan.tfggimnasio.security.service.AuthService;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "${app.frontend.url}")
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private AuthService authService;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
@@ -49,7 +53,7 @@ public class AuthController {
     public ResponseEntity<String> confirm(@RequestParam("token") String token) {
         String result = authService.confirmToken(token);
         String htmlResponse = "<html>"
-                + "<head><meta http-equiv='refresh' content='4;url=http://localhost:4200/auth/login'></head>"
+                + "<head><meta http-equiv='refresh' content='4;url=" + frontendUrl + "/auth/login'></head>"
                 + "<body>"
                 + "<h1>" + result + "</h1>"
                 + "<p>Sera redirigido a la página en unos segundos...</p>"
