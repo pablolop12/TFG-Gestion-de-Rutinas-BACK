@@ -55,6 +55,15 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Dieta> dietas;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ConfirmationToken> confirmationTokens;
+
+    @Column(name = "movil")
+    private String movil;
+
+    @Column(name = "enabled")
+    private boolean enabled = false;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
@@ -82,7 +91,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 
     @Override
@@ -94,6 +103,7 @@ public class User implements UserDetails {
                 ", nombre='" + name + '\'' +
                 ", contrasena='" + password + '\'' +
                 ", roles='" + role + '\'' +
+                ", movil='" + movil + '\'' +
                 '}';
     }
 }

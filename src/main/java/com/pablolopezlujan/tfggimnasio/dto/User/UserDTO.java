@@ -20,6 +20,7 @@ public class UserDTO {
     private String name;
     private String lastname;
     private String role;
+    private String movil;
     private List<RutinaDTO> rutinas;
     private List<DietaDTO> dietas;
 }

@@ -1,15 +1,8 @@
 package com.pablolopezlujan.tfggimnasio.security.service;
 
-import com.pablolopezlujan.tfggimnasio.entity.Role;
-import com.pablolopezlujan.tfggimnasio.entity.User;
-import com.pablolopezlujan.tfggimnasio.repository.UserRepository;
-import com.pablolopezlujan.tfggimnasio.security.dto.LoginCredential;
-import com.pablolopezlujan.tfggimnasio.security.dto.RegisterRequest;
-import com.pablolopezlujan.tfggimnasio.security.dto.TokenDto;
-import com.pablolopezlujan.tfggimnasio.security.dto.TokenPayloadDTO;
-import com.pablolopezlujan.tfggimnasio.security.jwt.TokenUtils;
-import io.jsonwebtoken.Claims;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +14,21 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.pablolopezlujan.tfggimnasio.entity.ConfirmationToken;
+import com.pablolopezlujan.tfggimnasio.entity.Role;
+import com.pablolopezlujan.tfggimnasio.entity.User;
+import com.pablolopezlujan.tfggimnasio.repository.ConfirmationTokenRepository;
+import com.pablolopezlujan.tfggimnasio.repository.UserRepository;
+import com.pablolopezlujan.tfggimnasio.security.dto.LoginCredential;
+import com.pablolopezlujan.tfggimnasio.security.dto.RegisterRequest;
+import com.pablolopezlujan.tfggimnasio.security.dto.TokenDto;
+import com.pablolopezlujan.tfggimnasio.security.dto.TokenPayloadDTO;
+import com.pablolopezlujan.tfggimnasio.security.jwt.TokenUtils;
+import com.pablolopezlujan.tfggimnasio.service.EmailSenderService;
+
+import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -37,6 +45,9 @@ public class AuthService {
     private UserRepository userRepository;
 
     @Autowired
+    private ConfirmationTokenRepository confirmationTokenRepository;
+
+    @Autowired
     private TokenUtils jwtService;
 
     @Autowired
@@ -44,6 +55,9 @@ public class AuthService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private EmailSenderService emailSenderService;
 
     @Autowired
     private JavaMailSender mailSender;
@@ -83,7 +97,21 @@ public class AuthService {
         User user = modelMapper.map(request, User.class);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
+        user.setEnabled(false);
         userRepository.save(user);
+
+        String token = UUID.randomUUID().toString();
+        ConfirmationToken confirmationToken = new ConfirmationToken(
+            token,
+            LocalDateTime.now(),
+            LocalDateTime.now().plusMinutes(15),
+            user
+        );
+
+        confirmationTokenRepository.save(confirmationToken);
+
+        String link = "http://localhost:8080/api/v1/auth/confirm?token=" + token;
+        emailSenderService.send(user.getEmail(), buildEmail(user.getName(), link));
 
         User userData = userRepository.findByEmail(request.getEmail()).orElseThrow();
         String roles = userData.getRole().name();
@@ -93,24 +121,7 @@ public class AuthService {
                 .name(userData.getName())
                 .lastname(userData.getLastname())
                 .email(userData.getEmail())
-                .roles(roles)
-                .build();
-    }
-
-    public RegisterRequest register(User request) {
-        User user = request;
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.USER);
-        userRepository.save(user);
-
-        User userData = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        String roles = userData.getRole().name();
-
-        return RegisterRequest.builder()
-                .id(userData.getId())
-                .name(userData.getName())
-                .lastname(userData.getLastname())
-                .email(userData.getEmail())
+                .movil(userData.getMovil()) // Asegúrate de incluir movil
                 .roles(roles)
                 .build();
     }
@@ -129,29 +140,39 @@ public class AuthService {
                 .name(userData.getName())
                 .lastname(userData.getLastname())
                 .email(userData.getEmail())
+                .movil(userData.getMovil()) // Asegúrate de incluir movil
                 .roles(roles)
                 .build();
     }
+    public String confirmToken(String token) {
+        ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token)
+                .orElseThrow(() -> new IllegalStateException("Token no encontrado"));
 
-    public RegisterRequest registerAdmin(User request) {
-        User user = request;
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.ADMIN);
+        if (confirmationToken.getConfirmedAt() != null) {
+            throw new IllegalStateException("Email ya confirmado");
+        }
+
+        LocalDateTime expiredAt = confirmationToken.getExpiresAt();
+
+        if (expiredAt.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Token expirado");
+        }
+
+        confirmationToken.setConfirmedAt(LocalDateTime.now());
+        confirmationTokenRepository.save(confirmationToken);
+        User user = confirmationToken.getUser();
+        user.setEnabled(true);
         userRepository.save(user);
 
-        User userData = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        String roles = userData.getRole().name();
-
-        return RegisterRequest.builder()
-                .id(userData.getId())
-                .name(userData.getName())
-                .lastname(userData.getLastname())
-                .email(userData.getEmail())
-                .roles(roles)
-                .build();
+        return "Correo electrónico confirmado, puedes inicar sesión.";
     }
 
- // Password reset methods
+
+    private String buildEmail(String name, String link) {
+        return "Hola " + name + ",\n\nHaz click en este enlace para activar tu cuenta:\n" + link + "\n\nGracias.";
+    }
+
+    // Password reset methods
     public void sendPasswordResetEmail(String email) {
         logger.debug("Iniciando el proceso de recuperación de contraseña para el email: {}", email);
         Optional<User> userOptional = userRepository.findByEmail(email);
@@ -170,8 +191,8 @@ public class AuthService {
 
         SimpleMailMessage emailMessage = new SimpleMailMessage();
         emailMessage.setTo(user.getEmail());
-        emailMessage.setSubject("Password Reset Request");
-        emailMessage.setText("To reset your password, click the link below:\n" +
+        emailMessage.setSubject("Reseteo de contraseña");
+        emailMessage.setText("Para resetear su contraseña haga click en el siguiente enlace:\n" +
                 "http://localhost:4200/reset-password?token=" + token);
 
         logger.debug("Enviando correo a: {}", user.getEmail());

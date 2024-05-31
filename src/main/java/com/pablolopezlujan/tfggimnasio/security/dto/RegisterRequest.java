@@ -29,5 +29,7 @@ public class RegisterRequest {
     private String name;
     private String lastname;
     
+    private String movil;
+    
     private String roles;
 }

@@ -62,6 +62,8 @@ public class SecurityConfig {
                 requests
                     .requestMatchers("/api/v1/auth/forgot-password").permitAll()
                     .requestMatchers("/api/v1/auth/reset-password").permitAll()
+                    .requestMatchers("/api/v1/auth/confirm").permitAll()
+                    .requestMatchers("/api/v1/auth/register").permitAll()
                     .requestMatchers("/api/v1/auth/**").permitAll()
                     .anyRequest().authenticated();
             })
@@ -72,5 +74,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 }
